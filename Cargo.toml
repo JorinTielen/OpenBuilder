@@ -1,0 +1,9 @@
+[package]
+name = "open_builder"
+version = "0.1.0"
+authors = ["jorin <jorintielen999@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+sdl2 = "0.33"
+gl = "0.14"
