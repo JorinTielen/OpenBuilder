@@ -159,7 +159,7 @@ fn shader_from_source(source: &CStr, kind: GLenum) -> Result<GLuint, String> {
             gl::GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut len);
         }
 
-        let error =create_whitespace_cstring_with_len(len as usize); 
+        let error =create_whitespace_cstring_with_len(len as usize);
 
         unsafe {
             gl::GetShaderInfoLog(
