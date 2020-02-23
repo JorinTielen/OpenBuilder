@@ -9,7 +9,7 @@ use std::path::Path;
 #[repr(C, packed)]
 struct Vertex {
     pos: data::f32_f32_f32,
-    clr: data::f32_f32_f32,
+    clr: data::u2_u10_u10_u10_rev_float,
 }
 impl Vertex {
     fn vertex_attrib_pointers() {
@@ -26,7 +26,7 @@ impl Vertex {
         let offset = offset + std::mem::size_of::<data::f32_f32_f32>();
 
         unsafe {
-            data::f32_f32_f32::vertex_attrib_pointer(stride, location, offset);
+            data::u2_u10_u10_u10_rev_float::vertex_attrib_pointer(stride, location, offset);
         }
     }
 }
@@ -65,9 +65,9 @@ fn run() -> Result<(), String> {
     shader_program.set_used();
 
     let vertices: Vec<Vertex> = vec![
-        Vertex { pos: (0.5, -0.5, 0.0).into(),  clr: (1.0, 0.0, 0.0).into() }, // bottom right
-        Vertex { pos: (-0.5, -0.5, 0.0).into(), clr: (0.0, 1.0, 0.0).into() }, // bottom left
-        Vertex { pos: (0.0,  0.5, 0.0).into(),  clr: (0.0, 0.0, 1.0).into() }  // top
+        Vertex { pos: (0.5, -0.5, 0.0).into(),  clr: (1.0, 0.0, 0.0, 1.0).into() }, // bottom right
+        Vertex { pos: (-0.5, -0.5, 0.0).into(), clr: (0.0, 1.0, 0.0, 1.0).into() }, // bottom left
+        Vertex { pos: (0.0,  0.5, 0.0).into(),  clr: (0.0, 0.0, 1.0, 1.0).into() }  // top
     ];
 
     let mut vbo: gl::types::GLuint = 0;
