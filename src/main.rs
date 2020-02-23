@@ -1,8 +1,19 @@
 mod render;
+mod resources;
+
+use resources::Resources;
+use std::path::Path;
 
 fn main() {
+    if let Err(e) = run() {
+        println!("{}", e);
+    }
+}
+
+fn run() -> Result<(), String> {
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
+    let res = Resources::from_relative_path(Path::new("assets")).unwrap();
 
     let gl_attr = video_subsystem.gl_attr();
 
@@ -23,26 +34,14 @@ fn main() {
         gl::ClearColor(0.3, 0.3, 0.5, 1.0);
     }
 
-    use std::ffi::CString;
-
-    let vert_shader = render::Shader::from_vert_source(
-        &CString::new(include_str!("triangle.vert")).unwrap()
-    ).unwrap();
-
-    let frag_shader = render::Shader::from_frag_source(
-        &CString::new(include_str!("triangle.frag")).unwrap()
-    ).unwrap();
-
-    let shader_program = render::Program::from_shaders(
-        &[vert_shader, frag_shader]
-    ).unwrap();
-
+    let shader_program = render::Program::from_res(&res, "shaders/triangle").unwrap();
     shader_program.set_used();
 
     let vertices: Vec<f32> = vec![
-        -0.5, -0.5, 0.0,
-        0.5, -0.5, 0.0,
-        0.0, 0.5, 0.0
+        // positions      // colors
+        0.5, -0.5, 0.0,   1.0, 0.0, 0.0,   // bottom right
+        -0.5, -0.5, 0.0,  0.0, 1.0, 0.0,   // bottom left
+        0.0,  0.5, 0.0,   0.0, 0.0, 1.0    // top
     ];
 
     let mut vbo: gl::types::GLuint = 0;
@@ -76,8 +75,18 @@ fn main() {
             3, // the number of components per generic vertex attribute
             gl::FLOAT, // data type
             gl::FALSE, // normalized (int-to-float conversion)
-            (3 * std::mem::size_of::<f32>()) as gl::types::GLint, // stride (byte offset between consecutive attributes)
+            (6 * std::mem::size_of::<f32>()) as gl::types::GLint, // stride (byte offset between consecutive attributes)
             std::ptr::null() // offset of the first component
+        );
+
+        gl::EnableVertexAttribArray(1); // this is "layout (location = 0)" in vertex shader
+        gl::VertexAttribPointer(
+            1, // index of the generic vertex attribute ("layout (location = 0)")
+            3, // the number of components per generic vertex attribute
+            gl::FLOAT, // data type
+            gl::FALSE, // normalized (int-to-float conversion)
+            (6 * std::mem::size_of::<f32>()) as gl::types::GLint, // stride (byte offset between consecutive attributes)
+            (3 * std::mem::size_of::<f32>()) as *const gl::types::GLvoid // offset of the first component
         );
 
         gl::BindBuffer(gl::ARRAY_BUFFER, 0);
@@ -109,5 +118,7 @@ fn main() {
     
         window.gl_swap_window();
     }
+
+    Ok(())
 }
 
